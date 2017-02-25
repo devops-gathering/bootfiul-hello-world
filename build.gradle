@@ -43,6 +43,7 @@ task copyJar(type: Copy) {
 }
 
 task createDockerfile(type: Dockerfile) {
+    dependsOn copyJar
     destFile = project.file(dockerBuildDir + "Dockerfile")
 
     from 'openjdk:8-jre'
