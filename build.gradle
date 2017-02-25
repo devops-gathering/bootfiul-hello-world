@@ -3,29 +3,55 @@ buildscript {
 		springBootVersion = '1.5.1.RELEASE'
 	}
 	repositories {
-		mavenCentral()
+        jcenter()
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'com.bmuschko:gradle-docker-plugin:3.0.5'
 	}
 }
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 
-jar {
-	baseName = 'hello-world'
-	version = '0.0.1-SNAPSHOT'
-}
-
 sourceCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    jcenter()
 }
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile('org.springframework.boot:spring-boot-starter')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+def dockerBuildDir = 'build/docker/'
+def applicationJar = "${archivesBaseName}.jar"
+
+task copyJar(type: Copy) {
+    dependsOn bootRepackage
+    file(dockerBuildDir).mkdirs()
+    from "$libsDir/$applicationJar"
+    into dockerBuildDir
+}
+
+task createDockerfile(type: Dockerfile) {
+    destFile = project.file(dockerBuildDir + "Dockerfile")
+
+    from 'openjdk:8-jre'
+    copyFile(applicationJar, "/")
+    entryPoint "sh", "-c", "java \$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /$applicationJar"
+}
+
+task buildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = 'devops/hello-world'
 }
