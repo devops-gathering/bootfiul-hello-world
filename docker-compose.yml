@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  greeter:
+    image: dog.bootcamp/greeter
+    environment: 
+      - "GREETER_NAME=docker-compose"
