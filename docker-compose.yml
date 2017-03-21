@@ -4,4 +4,4 @@ services:
   greeter:
     image: devops/hello-world
     environment: 
-      - "GREETER_NAME=docker-compose"
+      GREETER_NAME: docker-compose
