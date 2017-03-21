@@ -2,6 +2,6 @@ version: "3"
 
 services:
   greeter:
-    image: dog.bootcamp/greeter
+    image: devops/hello-world
     environment: 
       - "GREETER_NAME=docker-compose"
